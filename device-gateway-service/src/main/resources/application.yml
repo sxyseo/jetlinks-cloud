@@ -1,0 +1,65 @@
+server:
+  port: 9012
+logging:
+  level:
+    business: TRACE
+spring:
+  aop:
+    auto: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    filters: stat
+    max-active: 1000
+    initial-size: 5
+    min-idle: 5
+    max-wait: 50000
+    min-evictable-idle-time-millis: 300000
+    test-while-idle: true
+    test-on-borrow: false
+    test-on-return: false
+    pool-prepared-statements: false
+    validation-query: select 1
+    time-between-eviction-runs-millis: 60000
+    max-open-prepared-statements: 2000
+  application:
+    name: @artifactId@
+  profiles:
+    active: dev
+hsweb:
+  app:
+    name: 设备网关服务
+    version: 1.0.0
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${eureka-host:localhost}:${eureka-port:8761}/eureka/
+  instance:
+    appname: ${spring.application.name}
+    app-group-name: "后台管理"
+feign:
+  hystrix:
+    enabled: false
+ribbon:
+  ReadTimeout: 100000
+  ConnectTimeout: 2000
+  MaxAutoRetries: 3
+  MaxAutoRetriesNextServer: 1
+jetlinks:
+  logger:
+    stream:
+      producer: true
+  redis:
+    clients:
+      default:  #默认的redis配置
+        hosts: redis://127.0.0.1:6379
+        database: 2
+vertx:
+  service-id: ${spring.application.name}
+  mqtt:
+    port: 1883
+    accept-backlog: 2048
+    send-buffer-size: 10240
+    receive-buffer-size: 65536
+    max-message-size: 65536
+gateway:
+  server-id: ${spring.application.name}

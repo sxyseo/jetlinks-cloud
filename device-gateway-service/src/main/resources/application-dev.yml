@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./db/@artifactId@
+    username: sa
+    password:
+logging:
+  level:
+    org.hswebframework.web: DEBUG
+    org.hswebframework.web.cache: WARN
+    org.jetlinks: DEBUG
