@@ -56,7 +56,7 @@ public class ExecutorServiceConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "iot.executor")
+    @ConfigurationProperties(prefix = "jetlinks.executor")
     @Primary
     public ThreadPoolExecutorFactoryBean threadPoolTaskExecutor() {
         ThreadPoolExecutorFactoryBean executor = new ThreadPoolExecutorFactoryBean() {
@@ -105,7 +105,7 @@ public class ExecutorServiceConfiguration {
         @Override
         public Thread newThread(Runnable runnable) {
             Thread thread = new Thread(runnable);
-            thread.setName("iot-thread-" + index.getAndAdd(1));
+            thread.setName("jetlinks-thread-" + index.getAndAdd(1));
             thread.setContextClassLoader(this.getClass().getClassLoader());
             thread.setDaemon(false);
             return thread;
