@@ -44,10 +44,10 @@ public class RedissonProperties {
                 Config config = new Config();
                 config.useSingleServer()
                         .setAddress(properties.getHosts()[0])
-//                        .setPassword(properties.getPassword())
-//                        .setConnectionPoolSize(properties.getConnectionPoolSize())
-//                        .setConnectTimeout(properties.getConnectionTimeout())
-//                        .setTimeout(properties.timeout)
+                        .setPassword(properties.getPassword())
+                        .setConnectionPoolSize(properties.getConnectionPoolSize())
+                        .setConnectTimeout(properties.getConnectionTimeout())
+                        .setTimeout(properties.timeout)
                         .setDatabase(properties.getDatabase());
                 return config;
             }
