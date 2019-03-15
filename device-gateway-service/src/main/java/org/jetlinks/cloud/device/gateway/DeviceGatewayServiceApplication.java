@@ -41,13 +41,14 @@ public class DeviceGatewayServiceApplication {
 
         @Override
         public void run(String... strings) {
-            for (int i = 0; i < 1000; i++) {
-                DeviceInfo deviceInfo = new DeviceInfo();
-                deviceInfo.setId("test" + i);
-                deviceInfo.setProtocol("mock");
-                deviceInfo.setName("test");
-                registry.registry(deviceInfo);
-            }
+            //自动注册10万
+//            for (int i = 0; i < 100000; i++) {
+//                DeviceInfo deviceInfo = new DeviceInfo();
+//                deviceInfo.setId("test" + i);
+//                deviceInfo.setProtocol("mock");
+//                deviceInfo.setName("test");
+//                registry.registry(deviceInfo);
+//            }
         }
     }
 

@@ -52,14 +52,18 @@ jetlinks:
     clients:
       default:  #默认的redis配置
         hosts: redis://127.0.0.1:6379
+        database: 0
+      user-autz:  #用户权限信息
+        hosts: redis://127.0.0.1:6379
         database: 2
 vertx:
-  service-id: ${spring.application.name}
+  prefer-native-transport: true # linux下使用epoll
   mqtt:
     port: 1883
     accept-backlog: 2048
     send-buffer-size: 10240
     receive-buffer-size: 65536
     max-message-size: 65536
+
 gateway:
   server-id: ${spring.application.name}

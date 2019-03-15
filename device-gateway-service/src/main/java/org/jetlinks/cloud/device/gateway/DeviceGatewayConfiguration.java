@@ -3,12 +3,15 @@ package org.jetlinks.cloud.device.gateway;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.impl.VertxImpl;
+import io.vertx.core.net.impl.transport.Transport;
 import io.vertx.core.spi.VerticleFactory;
 import io.vertx.mqtt.MqttServerOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.jetlinks.cloud.device.gateway.vertx.VerticleSupplier;
 import org.jetlinks.gateway.session.DefaultDeviceSessionManager;
 import org.jetlinks.protocol.ProtocolSupports;
+import org.jetlinks.registry.api.DeviceMessageHandler;
 import org.jetlinks.registry.api.DeviceMonitor;
 import org.jetlinks.registry.api.DeviceRegistry;
 import org.springframework.beans.factory.DisposableBean;
@@ -55,6 +58,7 @@ public class DeviceGatewayConfiguration {
     public DefaultDeviceSessionManager deviceSessionManager(Environment environment,
                                                             ProtocolSupports protocolSupports,
                                                             DeviceRegistry registry,
+                                                            DeviceMessageHandler deviceMessageHandler,
                                                             DeviceMonitor deviceMonitor,
                                                             ScheduledExecutorService executorService) {
         DefaultDeviceSessionManager sessionManager = new DefaultDeviceSessionManager();
@@ -63,6 +67,7 @@ public class DeviceGatewayConfiguration {
         sessionManager.setDeviceRegistry(registry);
         sessionManager.setExecutorService(executorService);
         sessionManager.setDeviceMonitor(deviceMonitor);
+        sessionManager.setDeviceMessageHandler(deviceMessageHandler);
         return sessionManager;
     }
 
@@ -108,7 +113,7 @@ public class DeviceGatewayConfiguration {
                 log.debug("close vertx done");
                 latch.countDown();
             });
-            latch.await(10, TimeUnit.SECONDS);
+            latch.await(30, TimeUnit.SECONDS);
         }
     }
 }
