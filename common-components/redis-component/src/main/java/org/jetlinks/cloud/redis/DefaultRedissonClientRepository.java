@@ -22,6 +22,9 @@ import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author zhouhao
@@ -43,6 +46,10 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
 
     @Getter
     @Setter
+    private ExecutorService executorService;
+
+    @Getter
+    @Setter
     private int threadSize = Runtime.getRuntime().availableProcessors() * 2;
 
     public void destroy() {
@@ -61,9 +68,14 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
         } else if (transportMode == TransportMode.NIO) {
             eventLoopGroup = new NioEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-nio-netty"));
         }
+        if (executorService == null) {
+            executorService = Executors.newFixedThreadPool(threadSize, new DefaultThreadFactory("redisson"));
+        }
+
         for (Map.Entry<String, RedissonProperties> entry : clients.entrySet()) {
             Config config = entry.getValue().toConfig(clients.get("default"));
             config.setEventLoopGroup(eventLoopGroup);
+            config.setExecutor(executorService);
             config.setTransportMode(transportMode);
             config.setAddressResolverGroupFactory(new DnsAddressResolverGroupFactory());
             repository.put(entry.getKey(), Redisson.create(config));
