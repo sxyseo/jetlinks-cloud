@@ -31,6 +31,8 @@ import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,14 +49,9 @@ public class RedissonConfiguration {
 
     @Bean
     @ConfigurationProperties(prefix = "jetlinks.redis", ignoreInvalidFields = true)
+    @Order
     public RedissonClientRepository redissonClientRepository() {
         return new DefaultRedissonClientRepository();
-    }
-
-    @Bean
-    @Primary
-    public RedissonClient defaultRedissonClient(RedissonClientRepository repository) {
-        return repository.getDefaultClient();
     }
 
     @Bean
@@ -138,6 +135,11 @@ public class RedissonConfiguration {
                 .orElseGet(repository::getDefaultClient));
     }
 
+    @Bean(destroyMethod = "close")
+    public RedissonDeviceMessageHandler deviceMessageHandler(RedissonClientRepository repository, ExecutorService executorService) {
+        return new RedissonDeviceMessageHandler(repository.getClient("device-registry")
+                .orElseGet(repository::getDefaultClient), executorService);
+    }
 
     @Bean
     public DeviceRegistry deviceRegistry(RedissonClientRepository repository,
