@@ -10,6 +10,7 @@ import org.jetlinks.protocol.message.property.ReadPropertyMessageReply;
 import org.jetlinks.protocol.metadata.DeviceMetadataCodec;
 import org.jetlinks.registry.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -39,16 +40,19 @@ public class DeviceGatewayServiceApplication {
         @Autowired
         DeviceRegistry registry;
 
+        @Value("${init-size:10000}")
+        private long size = 10000;
+
         @Override
         public void run(String... strings) {
-            //自动注册10万
-//            for (int i = 0; i < 100000; i++) {
-//                DeviceInfo deviceInfo = new DeviceInfo();
-//                deviceInfo.setId("test" + i);
-//                deviceInfo.setProtocol("mock");
-//                deviceInfo.setName("test");
-//                registry.registry(deviceInfo);
-//            }
+            //自动注册模拟设备
+            for (int i = 0; i < size; i++) {
+                DeviceInfo deviceInfo = new DeviceInfo();
+                deviceInfo.setId("test" + i);
+                deviceInfo.setProtocol("mock");
+                deviceInfo.setName("test");
+                registry.registry(deviceInfo);
+            }
         }
     }
 
