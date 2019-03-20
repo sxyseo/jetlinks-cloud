@@ -12,17 +12,13 @@ import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.redisson.config.TransportMode;
-import org.redisson.connection.DnsAddressResolverGroupFactory;
-import org.redisson.connection.MultiDnsAddressResolverGroupFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.Ordered;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -77,7 +73,6 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
             config.setEventLoopGroup(eventLoopGroup);
             config.setExecutor(executorService);
             config.setTransportMode(transportMode);
-            config.setAddressResolverGroupFactory(new DnsAddressResolverGroupFactory());
             repository.put(entry.getKey(), Redisson.create(config));
         }
     }

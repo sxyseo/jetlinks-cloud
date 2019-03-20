@@ -25,13 +25,11 @@ public enum DeviceConfigKey implements EnumDict<String> {
     private String text;
 
     public ValueWrapper getConfigValue(DeviceOperation operation, String suffix) {
-        return operation.getConfig()
-                .get(getValue().concat(suffix))
+        return operation.get(getValue().concat(suffix == null ? "" : suffix))
                 .notPresent(() -> getConfigValue(operation));
     }
 
     public ValueWrapper getConfigValue(DeviceOperation operation) {
-        return operation.getConfig()
-                .get(getValue());
+        return operation.get(getValue());
     }
 }
