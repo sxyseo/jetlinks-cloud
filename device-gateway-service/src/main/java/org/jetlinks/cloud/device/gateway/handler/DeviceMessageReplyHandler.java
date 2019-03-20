@@ -1,8 +1,6 @@
 package org.jetlinks.cloud.device.gateway.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hswebframework.web.NotFoundException;
-import org.jetlinks.cloud.DeviceConfigKey;
 import org.jetlinks.cloud.device.gateway.vertx.DeviceMessageEvent;
 import org.jetlinks.gateway.session.DeviceSession;
 import org.jetlinks.protocol.message.DeviceMessage;
@@ -11,7 +9,6 @@ import org.jetlinks.protocol.message.event.EventMessage;
 import org.jetlinks.protocol.message.function.FunctionInvokeMessageReply;
 import org.jetlinks.protocol.metadata.FunctionMetadata;
 import org.jetlinks.registry.api.DeviceMessageHandler;
-import org.jetlinks.registry.api.DeviceRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -76,7 +73,7 @@ public class DeviceMessageReplyHandler {
     }
 
     private void sendMessageToTopic(List<String> topics, DeviceMessage message) {
-        log.info("发送消息到topic:{}\n{}", message.toJson());
-
+        log.info("发送消息到MQ,topics:{}\n{}", topics, message.toJson());
+        // FIXME: 19-3-20 发送消息到消息队列
     }
 }

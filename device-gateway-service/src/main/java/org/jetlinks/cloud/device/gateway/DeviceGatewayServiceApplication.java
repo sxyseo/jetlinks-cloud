@@ -121,9 +121,10 @@ public class DeviceGatewayServiceApplication {
                     "    }\n" +
                     "  ]\n" +
                     "}");
-            productOperation.put(DeviceConfigKey.eventTopic.getValue(), "device.events");
-            productOperation.put(DeviceConfigKey.deviceConnectTopic.getValue(), "device.connect");
-            productOperation.put(DeviceConfigKey.deviceDisconnectTopic.getValue(), "device.disconnect");
+            productOperation.put(DeviceConfigKey.eventTopic.getValue(), "[\"device.events\"]");
+            productOperation.put(DeviceConfigKey.deviceConnectTopic.getValue(), "[\"device.connect\"]");
+            productOperation.put(DeviceConfigKey.deviceDisconnectTopic.getValue(), "[\"device.disconnect\"]");
+            productOperation.put(DeviceConfigKey.functionReplyTopic.getValue(), "[\"device.function.reply\"]");
 
             //自动注册模拟设备
             for (int i = 0; i < size; i++) {
@@ -136,7 +137,6 @@ public class DeviceGatewayServiceApplication {
             }
         }
     }
-
 
 
     @Bean
