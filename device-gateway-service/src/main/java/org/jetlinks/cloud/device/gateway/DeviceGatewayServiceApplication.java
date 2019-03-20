@@ -2,6 +2,7 @@ package org.jetlinks.cloud.device.gateway;
 
 import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.Unpooled;
+import org.jetlinks.cloud.DeviceConfigKey;
 import org.jetlinks.protocol.ProtocolSupport;
 import org.jetlinks.protocol.message.CommonDeviceMessageReply;
 import org.jetlinks.protocol.message.DeviceMessage;
@@ -45,16 +46,98 @@ public class DeviceGatewayServiceApplication {
 
         @Override
         public void run(String... strings) {
+            DeviceProductInfo productInfo = new DeviceProductInfo();
+            productInfo.setProtocol("jet-links");
+            productInfo.setName("测试型号");
+            productInfo.setId("test");
+            DeviceProductOperation productOperation = registry.getProduct(productInfo.getId());
+            productOperation.update(productInfo);
+            productOperation.updateMetadata("{\n" +
+                    "  \"id\": \"test-device\",\n" +
+                    "  \"name\": \"测试设备\",\n" +
+                    "  \"properties\": [\n" +
+                    "    {\n" +
+                    "      \"id\": \"name\",\n" +
+                    "      \"name\": \"名称\",\n" +
+                    "      \"valueType\": {\n" +
+                    "        \"type\": \"string\"\n" +
+                    "      }\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"id\": \"model\",\n" +
+                    "      \"name\": \"型号\",\n" +
+                    "      \"valueType\": {\n" +
+                    "        \"type\": \"string\"\n" +
+                    "      }\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"functions\": [\n" +
+                    "    {\n" +
+                    "      \"id\": \"playVoice\",\n" +
+                    "      \"name\": \"播放声音\",\n" +
+                    "      \"inputs\": [\n" +
+                    "        {\n" +
+                    "          \"id\": \"content\",\n" +
+                    "          \"name\": \"内容\",\n" +
+                    "          \"valueType\": {\n" +
+                    "            \"type\": \"string\"\n" +
+                    "          }\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "          \"id\": \"times\",\n" +
+                    "          \"name\": \"播放次数\",\n" +
+                    "          \"valueType\": {\n" +
+                    "            \"type\": \"int\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"id\": \"setColor\",\n" +
+                    "      \"name\": \"灯光颜色\",\n" +
+                    "      \"inputs\": [\n" +
+                    "        {\n" +
+                    "          \"id\": \"colorRgb\",\n" +
+                    "          \"name\": \"颜色RGB值\",\n" +
+                    "          \"valueType\": {\n" +
+                    "            \"type\": \"string\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  ],\n" +
+                    "  \"events\": [\n" +
+                    "    {\n" +
+                    "      \"id\": \"temperature\",\n" +
+                    "      \"name\": \"温度\",\n" +
+                    "      \"parameters\": [\n" +
+                    "        {\n" +
+                    "          \"id\": \"temperature\",\n" +
+                    "          \"valueType\": {\n" +
+                    "            \"type\": \"int\"\n" +
+                    "          }\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}");
+            productOperation.put(DeviceConfigKey.eventTopic.getValue(), "device.events");
+            productOperation.put(DeviceConfigKey.deviceConnectTopic.getValue(), "device.connect");
+            productOperation.put(DeviceConfigKey.deviceDisconnectTopic.getValue(), "device.disconnect");
+
             //自动注册模拟设备
             for (int i = 0; i < size; i++) {
                 DeviceInfo deviceInfo = new DeviceInfo();
                 deviceInfo.setId("test" + i);
-                deviceInfo.setProtocol("mock");
+                deviceInfo.setProtocol("jet-links");
                 deviceInfo.setName("test");
+                deviceInfo.setProductId(productInfo.getId());
                 registry.registry(deviceInfo);
             }
         }
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager() {
