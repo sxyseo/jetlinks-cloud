@@ -17,6 +17,9 @@ import org.jetlinks.registry.api.DeviceOperation;
 public enum DeviceConfigKey implements EnumDict<String> {
     deviceConnectTopic("device:topic:connect", "设备连接"),
     deviceDisconnectTopic("device:topic:disconnect", "设备断开连接"),
+    childDeviceConnectTopic("device:topic:child:connect", "子设备连接"),
+    childDeviceDisconnectTopic("device:topic:child:disconnect", "子设备断开连接"),
+
     eventTopic("device:topic:event", "设备事件上报"),
     functionReplyTopic("device:topic:function:reply", "功能调用回复"),
     ;

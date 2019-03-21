@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./db/@artifactId@
+    url: jdbc:h2:file:./db/${spring.application.name}
     username: sa
     password:
 logging:

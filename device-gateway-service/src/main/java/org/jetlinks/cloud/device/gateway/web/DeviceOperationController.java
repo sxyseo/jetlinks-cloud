@@ -41,7 +41,8 @@ public class DeviceOperationController {
         message.setMessageId(IDGenerator.MD5.generate());
         message.setPropertyIds(Arrays.asList(name));
         message.setDeviceId(deviceId);
-        ReadPropertyMessageReply reply = registry.getDevice(deviceId).messageSender()
+        ReadPropertyMessageReply reply = registry.getDevice(deviceId)
+                .messageSender()
                 .send(message, ReadPropertyMessageReply::new)
                 .toCompletableFuture()
                 .get(10, TimeUnit.SECONDS);
