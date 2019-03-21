@@ -3,11 +3,11 @@ package org.jetlinks.cloud.device.gateway;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.impl.VertxImpl;
-import io.vertx.core.net.impl.transport.Transport;
 import io.vertx.core.spi.VerticleFactory;
 import io.vertx.mqtt.MqttServerOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.jetlinks.cloud.device.gateway.events.DeviceOnlineEvent;
+import org.jetlinks.cloud.device.gateway.events.DeviceOfflineEvent;
 import org.jetlinks.cloud.device.gateway.vertx.VerticleSupplier;
 import org.jetlinks.gateway.session.DefaultDeviceSessionManager;
 import org.jetlinks.protocol.ProtocolSupports;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -60,6 +61,7 @@ public class DeviceGatewayConfiguration {
                                                             DeviceRegistry registry,
                                                             DeviceMessageHandler deviceMessageHandler,
                                                             DeviceMonitor deviceMonitor,
+                                                            ApplicationEventPublisher eventPublisher,
                                                             ScheduledExecutorService executorService) {
         DefaultDeviceSessionManager sessionManager = new DefaultDeviceSessionManager();
         sessionManager.setServerId(environment.getProperty("gateway.server-id"));
@@ -68,6 +70,8 @@ public class DeviceGatewayConfiguration {
         sessionManager.setExecutorService(executorService);
         sessionManager.setDeviceMonitor(deviceMonitor);
         sessionManager.setDeviceMessageHandler(deviceMessageHandler);
+        sessionManager.setOnDeviceRegister(session -> eventPublisher.publishEvent(new DeviceOnlineEvent(session, System.currentTimeMillis())));
+        sessionManager.setOnDeviceUnRegister(session -> eventPublisher.publishEvent(new DeviceOfflineEvent(session, System.currentTimeMillis() + 100)));
         return sessionManager;
     }
 

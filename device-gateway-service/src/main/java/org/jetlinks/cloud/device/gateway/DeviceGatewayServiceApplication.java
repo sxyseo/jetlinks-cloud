@@ -124,6 +124,8 @@ public class DeviceGatewayServiceApplication {
             productOperation.put(DeviceConfigKey.eventTopic.getValue(), "[\"device.events\"]");
             productOperation.put(DeviceConfigKey.deviceConnectTopic.getValue(), "[\"device.connect\"]");
             productOperation.put(DeviceConfigKey.deviceDisconnectTopic.getValue(), "[\"device.disconnect\"]");
+            productOperation.put(DeviceConfigKey.childDeviceConnectTopic.getValue(), "[\"device.child.connect\"]");
+            productOperation.put(DeviceConfigKey.childDeviceDisconnectTopic.getValue(), "[\"device.child.disconnect\"]");
             productOperation.put(DeviceConfigKey.functionReplyTopic.getValue(), "[\"device.function.reply\"]");
 
             //自动注册模拟设备
