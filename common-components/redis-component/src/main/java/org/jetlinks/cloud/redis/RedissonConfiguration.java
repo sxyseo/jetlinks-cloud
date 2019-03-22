@@ -5,8 +5,6 @@ import org.hswebframework.web.authorization.token.SimpleUserToken;
 import org.hswebframework.web.authorization.token.UserToken;
 import org.hswebframework.web.authorization.token.UserTokenManager;
 import org.jetlinks.protocol.ProtocolSupports;
-import org.jetlinks.registry.api.AuthenticationManager;
-import org.jetlinks.registry.api.DeviceMessageHandler;
 import org.jetlinks.registry.api.DeviceMonitor;
 import org.jetlinks.registry.api.DeviceRegistry;
 import org.jetlinks.registry.redis.RedissonDeviceMessageHandler;
@@ -30,8 +28,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import java.util.HashSet;
@@ -143,13 +139,11 @@ public class RedissonConfiguration {
 
     @Bean
     public DeviceRegistry deviceRegistry(RedissonClientRepository repository,
-                                         ProtocolSupports protocolSupports,
-                                         ExecutorService executorService,
-                                         AuthenticationManager authenticationManager) {
+                                         ProtocolSupports protocolSupports) {
 
         return new RedissonDeviceRegistry(
                 repository.getClient("device-registry").orElseGet(repository::getDefaultClient),
-                authenticationManager, protocolSupports, executorService);
+                protocolSupports);
     }
 
 }

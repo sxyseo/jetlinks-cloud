@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.hswebframework.web.dict.EnumDict;
 import org.jetlinks.protocol.metadata.ValueWrapper;
-import org.jetlinks.registry.api.DeviceOperation;
+import org.jetlinks.protocol.device.DeviceOperation;
 
 /**
  * 设备配置常量

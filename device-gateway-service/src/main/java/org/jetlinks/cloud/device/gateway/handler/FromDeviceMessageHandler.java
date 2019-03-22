@@ -19,7 +19,7 @@ import org.jetlinks.protocol.message.property.ReadPropertyMessageReply;
 import org.jetlinks.protocol.message.property.WritePropertyMessageReply;
 import org.jetlinks.protocol.metadata.FunctionMetadata;
 import org.jetlinks.registry.api.DeviceMessageHandler;
-import org.jetlinks.registry.api.DeviceOperation;
+import org.jetlinks.protocol.device.DeviceOperation;
 import org.jetlinks.registry.api.DeviceRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -57,7 +57,7 @@ public class FromDeviceMessageHandler {
 
     protected Object newConnectData(String deviceId) {
         JSONObject object = new JSONObject();
-        object.put("deviceId", deviceId);
+        object.put("clientId", deviceId);
         object.put("timestamp", System.currentTimeMillis());
         return object;
     }

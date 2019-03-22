@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.Unpooled;
 import org.jetlinks.cloud.DeviceConfigKey;
 import org.jetlinks.protocol.ProtocolSupport;
+import org.jetlinks.protocol.device.*;
 import org.jetlinks.protocol.message.CommonDeviceMessageReply;
 import org.jetlinks.protocol.message.DeviceMessage;
 import org.jetlinks.protocol.message.codec.*;
@@ -128,6 +129,11 @@ public class DeviceGatewayServiceApplication {
             productOperation.put(DeviceConfigKey.childDeviceDisconnectTopic.getValue(), "[\"device.child.disconnect\"]");
             productOperation.put(DeviceConfigKey.functionReplyTopic.getValue(), "[\"device.function.reply\"]");
 
+            productOperation.put("secureId","test");
+            productOperation.put("secureKey","test");
+
+            productOperation.put(DeviceConfigKey.functionReplyTopic.getValue(), "[\"device.function.reply\"]");
+
             //自动注册模拟设备
             for (int i = 0; i < size; i++) {
                 DeviceInfo deviceInfo = new DeviceInfo();
@@ -148,12 +154,6 @@ public class DeviceGatewayServiceApplication {
                 registry.registry(deviceInfo);
             }
         }
-    }
-
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        return (request, deviceOperation) -> AuthenticationResponse.success();
     }
 
     @Bean
@@ -209,6 +209,11 @@ public class DeviceGatewayServiceApplication {
             @Override
             public DeviceMetadataCodec getMetadataCodec() {
                 throw new UnsupportedOperationException("不支持元数据转码");
+            }
+
+            @Override
+            public AuthenticationResponse authenticate(AuthenticationRequest request, DeviceOperation deviceOperation) {
+                return AuthenticationResponse.success();
             }
         };
     }
