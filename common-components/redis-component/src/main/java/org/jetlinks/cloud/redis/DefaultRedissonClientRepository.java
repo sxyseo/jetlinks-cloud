@@ -1,7 +1,9 @@
 package org.jetlinks.cloud.redis;
 
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -13,32 +15,46 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.redisson.config.TransportMode;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ExitCodeEvent;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author zhouhao
  * @since 1.1.0
  */
 @Slf4j
-public class DefaultRedissonClientRepository implements RedissonClientRepository, DisposableBean, Ordered {
-    @Getter
-    @Setter
-    private Map<String, RedissonProperties> clients = new HashMap<>();
+public class DefaultRedissonClientRepository implements RedissonClientRepository, Ordered {
+
+    @Autowired
+    private MultiRedissonProperties multiRedissonProperties;
 
     private Map<String, RedissonClient> repository = new HashMap<>();
 
     private EventLoopGroup eventLoopGroup;
 
+    private ReadWriteLock initLock = new ReentrantReadWriteLock();
+
     @Getter
     @Setter
-    private TransportMode transportMode = TransportMode.NIO;
+    private TransportMode transportMode =
+            Epoll.isAvailable() ? TransportMode.EPOLL :
+                    KQueue.isAvailable() ? TransportMode.KQUEUE :
+                            TransportMode.NIO;
 
     @Getter
     @Setter
@@ -48,6 +64,7 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
     @Setter
     private int threadSize = Runtime.getRuntime().availableProcessors() * 2;
 
+    @PreDestroy
     public void destroy() {
         for (RedissonClient client : repository.values()) {
             log.debug("shutdown redisson {}", client);
@@ -57,28 +74,39 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
 
     @PostConstruct
     public void init() {
-        if (transportMode == TransportMode.EPOLL) {
-            eventLoopGroup = new EpollEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-epoll-netty"));
-        } else if (transportMode == TransportMode.KQUEUE) {
-            eventLoopGroup = new KQueueEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-kqueue-netty"));
-        } else if (transportMode == TransportMode.NIO) {
-            eventLoopGroup = new NioEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-nio-netty"));
-        }
-        if (executorService == null) {
-            executorService = Executors.newFixedThreadPool(threadSize, new DefaultThreadFactory("redisson"));
-        }
+        initLock.writeLock().lock();
+        try {
 
-        for (Map.Entry<String, RedissonProperties> entry : clients.entrySet()) {
-            Config config = entry.getValue().toConfig(clients.get("default"));
-            config.setEventLoopGroup(eventLoopGroup);
-            config.setExecutor(executorService);
-            config.setTransportMode(transportMode);
-            repository.put(entry.getKey(), Redisson.create(config));
+            if (transportMode == TransportMode.EPOLL) {
+                eventLoopGroup = new EpollEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-epoll-netty"));
+            } else if (transportMode == TransportMode.KQUEUE) {
+                eventLoopGroup = new KQueueEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-kqueue-netty"));
+            } else if (transportMode == TransportMode.NIO) {
+                eventLoopGroup = new NioEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-nio-netty"));
+            }
+            if (executorService == null) {
+                executorService = Executors.newFixedThreadPool(threadSize, new DefaultThreadFactory("redisson"));
+            }
+
+            for (Map.Entry<String, RedissonProperties> entry : multiRedissonProperties.getClients().entrySet()) {
+                Config config = entry.getValue().toConfig(multiRedissonProperties.getClients().get("default"));
+                config.setEventLoopGroup(eventLoopGroup);
+                config.setExecutor(executorService);
+                config.setTransportMode(transportMode);
+                repository.put(entry.getKey(), Redisson.create(config));
+            }
+        } finally {
+            initLock.writeLock().unlock();
         }
     }
 
     public Optional<RedissonClient> getClient(String name) {
-        return Optional.ofNullable(repository.get(name));
+        initLock.readLock().lock();
+        try {
+            return Optional.ofNullable(repository.get(name));
+        } finally {
+            initLock.readLock().unlock();
+        }
     }
 
     @Override

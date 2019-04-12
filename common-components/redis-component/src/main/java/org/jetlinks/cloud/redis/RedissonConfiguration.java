@@ -23,11 +23,15 @@ import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.annotation.Order;
 
 import java.util.HashSet;
@@ -41,11 +45,10 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0.0
  */
 @Configuration
+@EnableConfigurationProperties(MultiRedissonProperties.class)
 public class RedissonConfiguration {
 
     @Bean
-    @ConfigurationProperties(prefix = "jetlinks.redis", ignoreInvalidFields = true)
-    @Order
     public RedissonClientRepository redissonClientRepository() {
         return new DefaultRedissonClientRepository();
     }
@@ -96,7 +99,7 @@ public class RedissonConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jetlinks.redis.user-token", name = "enable", havingValue = "true", matchIfMissing = false)
+    @ConditionalOnProperty(prefix = "jetlinks.redis.user-token", name = "enable", havingValue = "true")
     @ConfigurationProperties(prefix = "hsweb.authorize")
     public UserTokenManager userTokenManager(RedissonClientRepository repository) {
         LocalCachedMapOptions<String, SimpleUserToken> localCachedMapOptions =

@@ -76,7 +76,7 @@ public class DeviceGatewayConfiguration {
     }
 
     @Bean
-    public MQTTServerInitializer commandLineRunner() {
+    public MQTTServerInitializer mqttServerInitializer() {
         return new MQTTServerInitializer();
     }
 

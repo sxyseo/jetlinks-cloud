@@ -5,7 +5,7 @@ logging:
     business: TRACE
 spring:
   aop:
-    auto: true
+    proxy-target-class: true
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     filters: stat
@@ -29,13 +29,6 @@ hsweb:
   app:
     name: 设备网关服务
     version: 1.0.0
-eureka:
-  client:
-    service-url:
-      defaultZone: http://${eureka-host:localhost}:${eureka-port:8761}/eureka/
-  instance:
-    appname: ${spring.application.name}
-    app-group-name: "后台管理"
 feign:
   hystrix:
     enabled: false
@@ -45,21 +38,24 @@ ribbon:
   MaxAutoRetries: 3
   MaxAutoRetriesNextServer: 1
 jetlinks:
-  logger:
-    stream:
-      producer: true
   redis:
     clients:
-      default:  #默认的redis配置
+      default:  #默认client
         hosts: redis://127.0.0.1:6379
         database: 0
-      user-autz:  #用户权限信息
+      device-registry:  #设备注册中心,使用redis数据库2
         hosts: redis://127.0.0.1:6379
         database: 2
 vertx:
   prefer-native-transport: true # linux下使用epoll
   mqtt:
     port: 1883
+    accept-backlog: 2048
+    send-buffer-size: 10240
+    receive-buffer-size: 65536
+    max-message-size: 65536
+  mqtt-ssl: # ssl mqtt 支持
+    port: 1884
     accept-backlog: 2048
     send-buffer-size: 10240
     receive-buffer-size: 65536

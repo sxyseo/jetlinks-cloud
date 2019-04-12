@@ -2,5 +2,10 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr:
-          127.0.0.1:8848
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        shared-dataids: common-config.yaml
+        refreshable-dataids: device-gateway-service.yml
+      discovery:
+        endpoint: 127.0.0.1:8848
+        server-addr: 127.0.0.1:8848

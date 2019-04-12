@@ -1,12 +1,56 @@
 version: '2'
 services:
-  redis:
-    image: redis
+  nacos:    # nacos 配置中心以及服务发现
+    image: nacos/nacos-server:0.9.0
+    container_name: jetlinks-nacos
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+    volumes:
+      - ./nacos.properties:/home/nacos/init.d/custom.properties
     ports:
-    - "6379:6379"
-  userdb:
+      - "8848:8848"
+  redis:
+    image: redis:5.0.4
+    container_name: jetlinks-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./data/redis:/data"
+    command: redis-server --appendonly yes
+  postgres:
     image: postgres:9.5.6-alpine
+    container_name: jetlinks-postgres
     ports:
       - "5432:5432"
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
     environment:
-      POSTGRES_PASSWORD: jetlinks_user_db
+      POSTGRES_PASSWORD: jetlinks
+      POSTGRES_DB: jetlinks
+  influxdb:
+    image: influxdb:1.7
+    container_name: jetlinks-influxdb
+    volumes:
+      - "./data/influxdb:/var/lib/influxdb"
+    environment:
+      INFLUXDB_ADMIN_ENABLED: "true"
+      INFLUXDB_DB: jetlinks
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: admin
+      INFLUXDB_USER: jetlinks
+      INFLUXDB_USER_PASSWORD: jetlinks
+      INFLUXDB_HTTP_AUTH_ENABLED: "false"
+    ports:
+      - "8086:8086"
+      - "8083:8083"
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: jetlinks-rabbitmq
+    environment:
+      RABBITMQ_ERLANG_COOKIE: jetlinks
+      RABBITMQ_DEFAULT_USER: jetlinks
+      RABBITMQ_DEFAULT_PASS: jetlinks
+    ports:
+      - "15672:15672"
+      - "5672:5672"
