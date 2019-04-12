@@ -51,18 +51,7 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
 
     @Getter
     @Setter
-    private TransportMode transportMode =
-            Epoll.isAvailable() ? TransportMode.EPOLL :
-                    KQueue.isAvailable() ? TransportMode.KQUEUE :
-                            TransportMode.NIO;
-
-    @Getter
-    @Setter
     private ExecutorService executorService;
-
-    @Getter
-    @Setter
-    private int threadSize = Runtime.getRuntime().availableProcessors() * 2;
 
     @PreDestroy
     public void destroy() {
@@ -76,7 +65,8 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
     public void init() {
         initLock.writeLock().lock();
         try {
-
+            TransportMode transportMode = multiRedissonProperties.getTransportMode();
+            int threadSize = multiRedissonProperties.getThreadSize();
             if (transportMode == TransportMode.EPOLL) {
                 eventLoopGroup = new EpollEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-epoll-netty"));
             } else if (transportMode == TransportMode.KQUEUE) {
