@@ -47,8 +47,6 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
 
     private EventLoopGroup eventLoopGroup;
 
-    private ReadWriteLock initLock = new ReentrantReadWriteLock();
-
     @Getter
     @Setter
     private ExecutorService executorService;
@@ -63,40 +61,30 @@ public class DefaultRedissonClientRepository implements RedissonClientRepository
 
     @PostConstruct
     public void init() {
-        initLock.writeLock().lock();
-        try {
-            TransportMode transportMode = multiRedissonProperties.getTransportMode();
-            int threadSize = multiRedissonProperties.getThreadSize();
-            if (transportMode == TransportMode.EPOLL) {
-                eventLoopGroup = new EpollEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-epoll-netty"));
-            } else if (transportMode == TransportMode.KQUEUE) {
-                eventLoopGroup = new KQueueEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-kqueue-netty"));
-            } else if (transportMode == TransportMode.NIO) {
-                eventLoopGroup = new NioEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-nio-netty"));
-            }
-            if (executorService == null) {
-                executorService = Executors.newFixedThreadPool(threadSize, new DefaultThreadFactory("redisson"));
-            }
+        TransportMode transportMode = multiRedissonProperties.getTransportMode();
+        int threadSize = multiRedissonProperties.getThreadSize();
+        if (transportMode == TransportMode.EPOLL) {
+            eventLoopGroup = new EpollEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-epoll-netty"));
+        } else if (transportMode == TransportMode.KQUEUE) {
+            eventLoopGroup = new KQueueEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-kqueue-netty"));
+        } else if (transportMode == TransportMode.NIO) {
+            eventLoopGroup = new NioEventLoopGroup(threadSize, new DefaultThreadFactory("redisson-nio-netty"));
+        }
+        if (executorService == null) {
+            executorService = Executors.newFixedThreadPool(threadSize, new DefaultThreadFactory("redisson"));
+        }
 
-            for (Map.Entry<String, RedissonProperties> entry : multiRedissonProperties.getClients().entrySet()) {
-                Config config = entry.getValue().toConfig(multiRedissonProperties.getClients().get("default"));
-                config.setEventLoopGroup(eventLoopGroup);
-                config.setExecutor(executorService);
-                config.setTransportMode(transportMode);
-                repository.put(entry.getKey(), Redisson.create(config));
-            }
-        } finally {
-            initLock.writeLock().unlock();
+        for (Map.Entry<String, RedissonProperties> entry : multiRedissonProperties.getClients().entrySet()) {
+            Config config = entry.getValue().toConfig(multiRedissonProperties.getClients().get("default"));
+            config.setEventLoopGroup(eventLoopGroup);
+            config.setExecutor(executorService);
+            config.setTransportMode(transportMode);
+            repository.put(entry.getKey(), Redisson.create(config));
         }
     }
 
     public Optional<RedissonClient> getClient(String name) {
-        initLock.readLock().lock();
-        try {
-            return Optional.ofNullable(repository.get(name));
-        } finally {
-            initLock.readLock().unlock();
-        }
+        return Optional.ofNullable(repository.get(name));
     }
 
     @Override
