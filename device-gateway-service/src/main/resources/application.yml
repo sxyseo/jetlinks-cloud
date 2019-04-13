@@ -47,19 +47,17 @@ jetlinks:
         hosts: redis://127.0.0.1:6379
         database: 2
 vertx:
-  prefer-native-transport: true # linux下使用epoll
+  prefer-native-transport: true # linux下使用epoll,macos下使用kqueue
   mqtt:
     port: 1883
     accept-backlog: 2048
     send-buffer-size: 10240
     receive-buffer-size: 65536
     max-message-size: 65536
-  mqtt-ssl: # ssl mqtt 支持
-    port: 1884
-    accept-backlog: 2048
-    send-buffer-size: 10240
-    receive-buffer-size: 65536
-    max-message-size: 65536
+    ssl: false #是否开启ssl
+    pfx-key-cert-options: # p12 双向认证
+      path: ./ssl/jetlinks_server.p12
+      password: jetlinks
 
 gateway:
   server-id: ${spring.application.name}
