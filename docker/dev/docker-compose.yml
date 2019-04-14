@@ -1,7 +1,7 @@
 version: '2'
 services:
   nacos:    # nacos 配置中心以及服务发现
-    image: nacos/nacos-server:0.9.0
+    image: nacos/nacos-server:1.0.0
     container_name: jetlinks-nacos
     environment:
       - PREFER_HOST_MODE=hostname
