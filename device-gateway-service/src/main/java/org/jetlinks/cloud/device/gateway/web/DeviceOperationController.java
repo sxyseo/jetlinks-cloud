@@ -4,8 +4,8 @@ import lombok.SneakyThrows;
 import org.hswebframework.web.controller.message.ResponseMessage;
 import org.hswebframework.web.id.IDGenerator;
 import org.jetlinks.protocol.message.DeviceMessageReply;
-import org.jetlinks.protocol.message.function.FunctionInvokeMessage;
 import org.jetlinks.protocol.message.function.FunctionInvokeMessageReply;
+import org.jetlinks.protocol.message.function.FunctionParameter;
 import org.jetlinks.protocol.message.property.ReadPropertyMessage;
 import org.jetlinks.protocol.message.property.ReadPropertyMessageReply;
 import org.jetlinks.registry.api.DeviceRegistry;
@@ -37,13 +37,10 @@ public class DeviceOperationController {
     public ResponseMessage<DeviceMessageReply> sendReadProperty(@PathVariable String deviceId,
                                                                 @PathVariable String name) {
 
-        ReadPropertyMessage message = new ReadPropertyMessage();
-        message.setMessageId(IDGenerator.MD5.generate());
-        message.setPropertyIds(Arrays.asList(name));
-        message.setDeviceId(deviceId);
         ReadPropertyMessageReply reply = registry.getDevice(deviceId)
                 .messageSender()
-                .send(message, ReadPropertyMessageReply::new)
+                .readProperty(deviceId, name)
+                .sendAsync()
                 .toCompletableFuture()
                 .get(10, TimeUnit.SECONDS);
         return ResponseMessage.ok(reply);
@@ -53,14 +50,14 @@ public class DeviceOperationController {
     @SneakyThrows
     public ResponseMessage<FunctionInvokeMessageReply> invokeFunction(@PathVariable String deviceId,
                                                                       @PathVariable String id,
-                                                                      @RequestBody List<Object> input) {
-        FunctionInvokeMessage message = new FunctionInvokeMessage();
-        message.setMessageId(IDGenerator.MD5.generate());
-        message.setFunctionId(id);
-        message.setInputs(input);
-        message.setDeviceId(deviceId);
-        FunctionInvokeMessageReply reply = registry.getDevice(deviceId).messageSender()
-                .send(message, FunctionInvokeMessageReply::new)
+                                                                      @RequestBody List<FunctionParameter> input) {
+        FunctionInvokeMessageReply reply = registry
+                .getDevice(deviceId)
+                .messageSender()
+                .invokeFunction(deviceId, id)
+                .setParameter(input)
+                .messageId(IDGenerator.MD5.generate())
+                .sendAsync()
                 .toCompletableFuture()
                 .get(10, TimeUnit.SECONDS);
         return ResponseMessage.ok(reply);
