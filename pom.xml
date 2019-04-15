@@ -119,6 +119,32 @@
                     </includes>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <imageName>jetlinks/${project.artifactId}</imageName>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                    </imageTags>
+                    <baseImage>java:8</baseImage>
+                    <workdir>/</workdir>
+                    <env>
+                        <TZ>Asia/Shanghai</TZ>
+                    </env>
+                    <entryPoint>["java","-jar","-server","-XX:+UseG1GC","/${project.build.finalName}.jar"]</entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                    <serverId>docker-repo</serverId>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
