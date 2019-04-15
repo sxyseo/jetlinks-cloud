@@ -24,4 +24,4 @@ hs_err_pid*
 /static/
 /upload
 /ui/upload/
-docker/dev/data
+docker/*/data
